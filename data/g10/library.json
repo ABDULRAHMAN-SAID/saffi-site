@@ -1,0 +1,232 @@
+[
+{
+"k": "0326057ba742",
+"g": "العاشر",
+"subject": "رياضيات",
+"file": "cls10_Math_S1_book (1).pdf",
+"type": "student",
+"n": 210,
+"ocr": 210,
+"chars": 304807
+},
+{
+"k": "29e52d0c78a5",
+"g": "العاشر",
+"subject": "انجلش",
+"file": "cls10_cb_10A (3).pdf",
+"type": "student",
+"n": 64,
+"ocr": 0,
+"chars": 82102
+},
+{
+"k": "3afc6f562d10",
+"g": "العاشر",
+"subject": "رياضيات",
+"file": "cls10_Math_AB_P1 (1).pdf",
+"type": "activity",
+"n": 108,
+"ocr": 108,
+"chars": 459087
+},
+{
+"k": "3b7760321828",
+"g": "العاشر",
+"subject": "لغتي الجميلة",
+"file": "cls10_Arabic_TeacherBook.pdf",
+"type": "teacher",
+"n": 186,
+"ocr": 186,
+"chars": 188896
+},
+{
+"k": "49a7de5fef66",
+"g": "العاشر",
+"subject": "المهارات الحياتية",
+"file": "cls10_Skills.pdf",
+"type": "student",
+"n": 106,
+"ocr": 90,
+"chars": 64080
+},
+{
+"k": "4b868868bd11",
+"g": "العاشر",
+"subject": "الفيزياء",
+"file": "cls10_Phys_AB_P1.pdf",
+"type": "activity",
+"n": 86,
+"ocr": 86,
+"chars": 44738
+},
+{
+"k": "50a8852060fc",
+"g": "العاشر",
+"subject": "التربية الاسلامية",
+"file": "Islamic_g10p1_Classical.pdf",
+"type": "student",
+"n": 146,
+"ocr": 146,
+"chars": 153959
+},
+{
+"k": "51d7b963d467",
+"g": "العاشر",
+"subject": "الكيمياء",
+"file": "cls10_Chem_SB_P1.pdf",
+"type": "student",
+"n": 112,
+"ocr": 112,
+"chars": 206447
+},
+{
+"k": "53cce64ac9c7",
+"g": "العاشر",
+"subject": "رياضيات",
+"file": "cls10_TB_Math_P1_compress (1).pdf",
+"type": "teacher",
+"n": 188,
+"ocr": 188,
+"chars": 187512
+},
+{
+"k": "54dce7ff79e5",
+"g": "العاشر",
+"subject": "الفيزياء",
+"file": "cls10_TB_Phys_P1.pdf",
+"type": "teacher",
+"n": 124,
+"ocr": 1,
+"chars": 154991
+},
+{
+"k": "5b191a6c1e6f",
+"g": "العاشر",
+"subject": "الفيزياء",
+"file": "cls10_Phys_SB_P1.pdf",
+"type": "student",
+"n": 124,
+"ocr": 124,
+"chars": 185793
+},
+{
+"k": "65230e3a45d6",
+"g": "العاشر",
+"subject": "انجلش",
+"file": "cls10_TB_10A.pdf",
+"type": "teacher",
+"n": 173,
+"ocr": 0,
+"chars": 435585
+},
+{
+"k": "95d1cf10cf4c",
+"g": "العاشر",
+"subject": "التربية الاسلامية",
+"file": "cls10_TB_Islamic_P1.pdf",
+"type": "teacher",
+"n": 168,
+"ocr": 168,
+"chars": 195971
+},
+{
+"k": "9a39f5a4877c",
+"g": "العاشر",
+"subject": "المهارات الحياتية",
+"file": "cls10_TB_Skills.pdf",
+"type": "teacher",
+"n": 132,
+"ocr": 132,
+"chars": 164817
+},
+{
+"k": "bafcba86b750",
+"g": "العاشر",
+"subject": "الأحياء",
+"file": "cls10_Bio_SB_P1.pdf",
+"type": "student",
+"n": 90,
+"ocr": 79,
+"chars": 134491
+},
+{
+"k": "cc703900da38",
+"g": "العاشر",
+"subject": "لغتي الجميلة",
+"file": "lugati_jamila_g10p1_Classical (1).pdf",
+"type": "student",
+"n": 222,
+"ocr": 197,
+"chars": 224491
+},
+{
+"k": "d5c276fabec0",
+"g": "العاشر",
+"subject": "انجلش",
+"file": "cls10_sb_10A (2).pdf",
+"type": "student",
+"n": 84,
+"ocr": 1,
+"chars": 6596
+},
+{
+"k": "deae1f26ea3b",
+"g": "العاشر",
+"subject": "الأحياء",
+"file": "cls10_TB_Bio_P1.pdf",
+"type": "teacher",
+"n": 79,
+"ocr": 79,
+"chars": 110197
+},
+{
+"k": "e05ad01186e9",
+"g": "العاشر",
+"subject": "الكيمياء",
+"file": "cls10_TB_Chem_P1.pdf",
+"type": "teacher",
+"n": 104,
+"ocr": 104,
+"chars": 142613
+},
+{
+"k": "e5c49e5efbd1",
+"g": "العاشر",
+"subject": "الكيمياء",
+"file": "cls10_Chem_AB_P1.pdf",
+"type": "activity",
+"n": 76,
+"ocr": 76,
+"chars": 75881
+},
+{
+"k": "ea11fc0b12df",
+"g": "العاشر",
+"subject": "الأحياء",
+"file": "cls10_Bio_AB_P1.pdf",
+"type": "activity",
+"n": 46,
+"ocr": 46,
+"chars": 46340
+},
+{
+"k": "f98e2eec9331",
+"g": "العاشر",
+"subject": "الدراسات الاجتماعية",
+"file": "cls10_TB_SocialStudies_compress (1).pdf",
+"type": "teacher",
+"n": 164,
+"ocr": 157,
+"chars": 167818
+},
+{
+"k": "ffe006f6ac19",
+"g": "العاشر",
+"subject": "الدراسات الاجتماعية",
+"file": "cls10_Social_P1.pdf",
+"type": "student",
+"n": 108,
+"ocr": 108,
+"chars": 131581
+}
+]
