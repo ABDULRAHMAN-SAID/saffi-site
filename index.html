@@ -181,6 +181,7 @@ footer bdi{unicode-bidi:isolate}
 .lpage.blank{color:var(--muted);text-align:center}
 @media(max-width:520px){.lbook{grid-template-columns:1fr auto}.lbook .lbadge{grid-column:1/-1;justify-self:start}}
 
+.pdfbox{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:14px}.pdfbox summary{cursor:pointer;font-size:19px;font-weight:600}.pdfbox a.lbook{text-decoration:none;color:inherit}
 #library[hidden]{display:none}
 .nb-fab{position:fixed;inset-block-end:18px;inset-inline-start:18px;z-index:40;display:flex;align-items:center;gap:10px;background:var(--dark);color:var(--on-dark);border:0;border-radius:999px;padding:8px 18px 8px 10px;font:500 15px/1 inherit;cursor:pointer;box-shadow:0 6px 24px rgba(17,18,20,.25)}
 .nb-fab[hidden],.nb-panel[hidden]{display:none}
@@ -316,7 +317,11 @@ footer bdi{unicode-bidi:isolate}
   <div class="lib-chips" id="ltypes" role="group" aria-label="نوع الكتاب"></div>
   <form class="lib-search" id="lsf"><input id="lq" type="search" placeholder="ابحث في كتب الصف، مثل: التناسب العكسي" aria-label="بحث في كتب الصف"><button class="btn dark sm" type="submit">بحث</button></form>
   <p class="lib-note">النص مستخرج آليًا من ملفات PDF وقد تظهر فيه أخطاء، خاصة في المعادلات والأشكال والجداول. الصف العاشر جاهز الآن، والصفوف الأخرى تُضاف تباعًا.</p>
-  <div class="lib-list" id="llist"></div>
+ <div class="lib-list" id="llist"></div>
+  <details class="pdfbox" id="pdfbox"><summary>الكتب الأصلية بصيغة PDF — الصفوف ٦ إلى ١٢</summary>
+    <div class="lib-chips" id="pgrades" role="group" aria-label="صف ملفات PDF"></div>
+    <div class="lib-list" id="plist"></div>
+  </details>
 </div></section>
 
 <section class="s" id="plans"><div class="w">
@@ -518,6 +523,14 @@ q('#lnx').onclick=()=>step(1);q('#lpv').onclick=()=>step(-1);
 q('#lpn').addEventListener('change',e=>{st.cur.p=Math.min(Math.max(1,+e.target.value||1),st.cur.b.pages.length);page()});
 document.addEventListener('keydown',e=>{if(q('#lreader').hidden)return;if(e.key==='ArrowLeft')step(1);else if(e.key==='ArrowRight')step(-1);else if(e.key==='Escape')q('#lclose').click()});
 chips();list();
+(function(){const R2="https://pub-d451f739ef6046a599cc5d85f40582a9.r2.dev/";let cat=null,pg=6;const names={6:'السادس',7:'السابع',8:'الثامن',9:'التاسع',10:'العاشر',11:'الحادي عشر',12:'الثاني عشر'};
+const ord={'كتاب الطالب':0,'دليل المعلم':1,'كتاب النشاط':2,'ملخص':3,'اختبار ومراجعة':4,'بطاقات وملصقات':5};
+function draw(){const g=document.getElementById('pgrades');g.innerHTML=Object.entries(names).map(([k,n])=>`<button class="lchip" data-pg="${k}" aria-pressed="${+k===pg}">${n}</button>`).join('');
+ const L=cat.filter(e=>e.grade===names[pg]);const by={};L.forEach(e=>(by[e.subject]=by[e.subject]||[]).push(e));
+ document.getElementById('plist').innerHTML=Object.keys(by).sort((a,b)=>a.localeCompare(b,'ar')).map(s=>`<div class="lsubj"><h3>${s}<span>${by[s].length}</span></h3>${by[s].sort((a,b)=>(ord[a.kind]||9)-(ord[b.kind]||9)).map(e=>`<a class="lbook" href="${R2}${e.asset}" target="_blank" rel="noopener"><span class="lbadge ${e.kind==='دليل المعلم'?'teacher':''}">${e.kind}</span><span class="lbt">${e.file.replace(/\.pdf$/i,'')}</span><span class="lpg">${Math.round(e.mb)} ميجا</span></a>`).join('')}</div>`).join('')}
+document.getElementById('pdfbox').addEventListener('toggle',async function(){if(this.open&&!cat){cat=await (await fetch('data/books_catalog.json')).json();draw()}});
+document.getElementById('pgrades').addEventListener('click',e=>{const b=e.target.closest('[data-pg]');if(b){pg=+b.dataset.pg;draw()}});})();
+
 })();
 </script>
 <script>
