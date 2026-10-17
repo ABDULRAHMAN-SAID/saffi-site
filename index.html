@@ -523,7 +523,7 @@ q('#lnx').onclick=()=>step(1);q('#lpv').onclick=()=>step(-1);
 q('#lpn').addEventListener('change',e=>{st.cur.p=Math.min(Math.max(1,+e.target.value||1),st.cur.b.pages.length);page()});
 document.addEventListener('keydown',e=>{if(q('#lreader').hidden)return;if(e.key==='ArrowLeft')step(1);else if(e.key==='ArrowRight')step(-1);else if(e.key==='Escape')q('#lclose').click()});
 chips();list();
-(function(){const R2="https://pub-d451f739ef6046a599cc5d85f40582a9.r2.dev/";let cat=null,pg=6;const names={6:'السادس',7:'السابع',8:'الثامن',9:'التاسع',10:'العاشر',11:'الحادي عشر',12:'الثاني عشر'};
+(function(){const R2="https://github.com/ABDULRAHMAN-SAID/saffi-site/releases/download/books/";let cat=null,pg=6;const names={6:'السادس',7:'السابع',8:'الثامن',9:'التاسع',10:'العاشر',11:'الحادي عشر',12:'الثاني عشر'};
 const ord={'كتاب الطالب':0,'دليل المعلم':1,'كتاب النشاط':2,'ملخص':3,'اختبار ومراجعة':4,'بطاقات وملصقات':5};
 function draw(){const g=document.getElementById('pgrades');g.innerHTML=Object.entries(names).map(([k,n])=>`<button class="lchip" data-pg="${k}" aria-pressed="${+k===pg}">${n}</button>`).join('');
  const L=cat.filter(e=>e.grade===names[pg]);const by={};L.forEach(e=>(by[e.subject]=by[e.subject]||[]).push(e));
