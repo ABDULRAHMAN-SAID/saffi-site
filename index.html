@@ -272,12 +272,14 @@ footer bdi{unicode-bidi:isolate}
       <div><label for="qg">الصف</label><select id="qg"></select></div>
       <div><label for="qsu">المادة</label><select id="qsu"></select></div>
       <div><label for="qb">الكتاب</label><select id="qb"></select></div>
+      <div><label for="ql">الدرس (من فهرس الكتاب)</label><select id="ql"><option value="">— اختر الدرس —</option></select></div>
+      <div><label for="qgm">اللعبة</label><select id="qgm"><option value="platformer">سوبر العبور</option><option value="camel">عدّاء الصحراء</option><option value="kart">سباق الكارت</option><option value="deep">قفزة الأعماق</option><option value="slice">قطّاع الفواكه</option><option value="board">السبورة</option><option value="falcon">الصقر المحلّق</option><option value="claw">صائد الجوائز</option><option value="space">حارس الفضاء</option></select></div>
       <div><label for="qt">الوحدة أو الدرس (كلمات من عنوانه)</label><input id="qt" type="text" placeholder="مثال: التناسب العكسي"></div>
       <div><label for="qf">من صفحة</label><input id="qf" type="number" min="1" placeholder="اختياري"></div>
       <div><label for="qe">إلى صفحة</label><input id="qe" type="number" min="1" placeholder="اختياري"></div>
       <div><label for="qn">عدد الأسئلة</label><select id="qn"><option>5</option><option selected>8</option><option>10</option><option>15</option></select></div>
     </div>
-    <div class="row"><button class="btn dark sm" type="button" id="qgo">ولّد الأسئلة</button><button class="btn sm" type="button" id="qplay" hidden style="background:var(--accent);color:var(--on-accent)">العب بها الآن</button><span class="st" id="qst"></span></div>
+    <div class="row"><button class="btn dark sm" type="button" id="qauto">جهّز اللعبة وابدأ</button><button class="btn sm" type="button" id="qgo">ولّد الأسئلة فقط</button><button class="btn sm" type="button" id="qplay" hidden style="background:var(--accent);color:var(--on-accent)">العب بها الآن</button><span class="st" id="qst"></span></div>
     <ol id="qlist" hidden></ol>
   </div>
   <div class="games">
@@ -376,8 +378,21 @@ qg.innerHTML=Object.entries(READY).map(([g,n])=>`<option value="${g}">الصف $
 let lib=[],books={};
 async function loadLib(){lib=await (await fetch(`data/g${qg.value}/library.json`)).json();const subs=[...new Set(lib.map(m=>m.subject))].sort((a,b)=>a.localeCompare(b,'ar'));qsu.innerHTML=subs.map(s=>`<option>${s}</option>`).join('');fillBooks()}
 function fillBooks(){const ord={student:0,activity:1,teacher:2,summary:3,resource:4};const L=lib.filter(m=>m.subject===qsu.value).sort((a,b)=>(ord[a.type]??9)-(ord[b.type]??9));qb.innerHTML=L.map(m=>`<option value="${m.k}">${TL[m.type]||m.type} — ${m.file.replace(/\.pdf$/i,'').slice(0,40)}</option>`).join('')}
-qsu.onchange=fillBooks;
-try{await loadLib()}catch(e){$('#qs').hidden=true;return}
+qsu.onchange=()=>{fillBooks();lessons()};
+const ql=$('#ql');let LS=[];
+async function lessons(){
+  ql.innerHTML='<option value="">— اختر الدرس —</option>';LS=[];if(!qb.value)return;
+  try{if(!books[qb.value])books[qb.value]=(await (await fetch(`data/g${qg.value}/${qb.value}.json`)).json()).pages}catch(e){return}
+  const P=books[qb.value],seen=new Set();
+  P.forEach((t,i)=>{if(i<3)return;const ln=(t||'').split('\n').map(x=>x.trim()).filter(Boolean).slice(0,6);
+    for(const l of ln){const m=l.match(/^(الدرس|الوحدة|الفصل)\s+\S+.{3,70}$/);if(m){const k=norm(l).replace(/\s+/g,' ');if(seen.has(k))break;seen.add(k);LS.push({t:l.replace(/\s+/g,' '),p:i+1});break}}});
+  ql.innerHTML+=LS.map((x,i)=>`<option value="${i}">${x.t.slice(0,60)} (ص ${x.p})</option>`).join('');
+  if(!LS.length)ql.innerHTML='<option value="">لا فهرس واضح — اكتب اسم الدرس أو الصفحات</option>';
+}
+ql.onchange=()=>{const x=LS[+ql.value];if(!x){return}const nx=LS.find(y=>y.p>x.p);$('#qf').value=x.p;$('#qe').value=Math.min(nx?nx.p-1:x.p+5,x.p+7);$('#qt').value=''};
+qb.onchange=lessons;qg.onchange=async()=>{await loadLib();lessons()};
+$('#qauto').onclick=async()=>{qs=null;await $('#qgo').onclick();if(qs){window.__bookQs={type:'safi-questions',label,questions:qs};window.__openGame('games/all.html#g='+$('#qgm').value,'ألعاب من الكتب',window.__bookQs)}};
+try{await loadLib();lessons()}catch(e){$('#qs').hidden=true;return}
 const STOP=new Set('ما هو هي هل كيف لماذا من في علي عن الي الذي التي هذا هذه الدرس الوحده الوحدة درس وحده'.split(' '));
 const stem=w=>w.replace(/^(وال|بال|كال|لل|ال)/,'');
 function pick(pages,topic,from,to,max){
