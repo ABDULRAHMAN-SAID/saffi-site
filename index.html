@@ -272,7 +272,8 @@ footer bdi{unicode-bidi:isolate}
       <div><label for="qg">الصف</label><select id="qg"></select></div>
       <div><label for="qsu">المادة</label><select id="qsu"></select></div>
       <div><label for="qb">الكتاب</label><select id="qb"></select></div>
-      <div><label for="ql">الدرس (من فهرس الكتاب)</label><select id="ql"><option value="">— اختر الدرس —</option></select></div>
+      <div><label for="qu">الوحدة</label><select id="qu"></select></div>
+      <div><label for="ql">الدرس</label><select id="ql"></select></div>
       <div><label for="qgm">اللعبة</label><select id="qgm"><option value="platformer">سوبر العبور</option><option value="camel">عدّاء الصحراء</option><option value="kart">سباق الكارت</option><option value="deep">قفزة الأعماق</option><option value="slice">قطّاع الفواكه</option><option value="board">السبورة</option><option value="falcon">الصقر المحلّق</option><option value="claw">صائد الجوائز</option><option value="space">حارس الفضاء</option></select></div>
       <div><label for="qt">الوحدة أو الدرس (كلمات من عنوانه)</label><input id="qt" type="text" placeholder="مثال: التناسب العكسي"></div>
       <div><label for="qf">من صفحة</label><input id="qf" type="number" min="1" placeholder="اختياري"></div>
@@ -379,24 +380,36 @@ let lib=[],books={};
 async function loadLib(){lib=await (await fetch(`data/g${qg.value}/library.json`)).json();const subs=[...new Set(lib.map(m=>m.subject))].sort((a,b)=>a.localeCompare(b,'ar'));qsu.innerHTML=subs.map(s=>`<option>${s}</option>`).join('');fillBooks()}
 function fillBooks(){const ord={student:0,activity:1,teacher:2,summary:3,resource:4};const seen=new Set();const L=lib.filter(m=>m.subject===qsu.value).sort((a,b)=>(ord[a.type]??9)-(ord[b.type]??9)||b.n-a.n).filter(m=>{const k=m.type+'|'+m.n;if(seen.has(k))return false;seen.add(k);return true});const c={};qb.innerHTML=L.map(m=>{c[m.type]=(c[m.type]||0)+1;const tot=L.filter(x=>x.type===m.type).length;return `<option value="${m.k}">${TL[m.type]||m.type}${tot>1?' '+c[m.type]:''} — ${m.n} صفحة</option>`}).join('')}
 qsu.onchange=()=>{fillBooks();lessons()};
-const ql=$('#ql');let LS=[];
-async function lessons(){
-  ql.innerHTML='<option value="">— اختر الدرس —</option>';LS=[];if(!qb.value)return;
-  try{if(!books[qb.value])books[qb.value]=(await (await fetch(`data/g${qg.value}/${qb.value}.json`)).json()).pages}catch(e){return}
-  const P=books[qb.value],seen=new Set();
-  P.forEach((t,i)=>{if(i<3)return;const ln=(t||'').split('\n').map(x=>x.trim()).filter(Boolean).slice(0,6);
-    for(const l of ln){const m=!/الدراسي/.test(l)&&l.match(/^(الدرس|الوحدة|Unit|Lesson|Chapter)\s*\S+.{2,70}$/i);if(m){const k=norm(l).replace(/\s+/g,' ');if(seen.has(k))break;seen.add(k);LS.push({t:l.replace(/\s+/g,' '),p:i+1});break}}});
-  ql.innerHTML+=LS.map((x,i)=>`<option value="${i}">${x.t.slice(0,60)} (ص ${x.p})</option>`).join('');
-  if(LS.length<3){LS=[];for(let p=1;p<=P.length;p+=8)LS.push({t:`الصفحات ${p}–${Math.min(p+7,P.length)}`,p});ql.innerHTML='<option value="">— اختر الجزء —</option>'+LS.map((x,i)=>`<option value="${i}">${x.t}</option>`).join('')}
+const ql=$('#ql'),qu=$('#qu');let LS=[],US=[];
+const chunks=(p,e,sz)=>{const r=[];for(let x=p;x<=e;x+=sz)r.push({t:`الصفحات ${x}–${Math.min(x+sz-1,e)}`,p:x,e:Math.min(x+sz-1,e)});return r};
+function fillLessons(){
+  const u=US[+qu.value]||null;ql.innerHTML='';LS=[];
+  if(!u){return}
+  LS=(u.ls&&u.ls.length)?u.ls.slice():chunks(u.p,u.e,6);
+  ql.innerHTML=`<option value="all">كل الوحدة (ص ${u.p}–${u.e})</option>`+LS.map((x,i)=>`<option value="${i}">${x.t.replace(/</g,'&lt;').slice(0,70)} (ص ${x.p})</option>`).join('');
+  setRange();
 }
-ql.onchange=()=>{const x=LS[+ql.value];if(!x){return}const nx=LS.find(y=>y.p>x.p);$('#qf').value=x.p;$('#qe').value=Math.min(nx?nx.p-1:x.p+5,x.p+7);$('#qt').value=''};
+function setRange(){
+  const u=US[+qu.value];if(!u)return;
+  if(ql.value==='all'||ql.value===''){$('#qf').value=u.p;$('#qe').value=u.e}
+  else{const x=LS[+ql.value];if(x){$('#qf').value=x.p;$('#qe').value=x.e||x.p}}
+  $('#qt').value='';
+}
+async function lessons(){
+  const m=lib.find(x=>x.k===qb.value);const T=(m&&m.toc)||[];
+  const N=m?m.n:0;
+  US=T.length?T:chunks(1,N,24).map(c=>({t:c.t,p:c.p,e:c.e,ls:[]}));
+  qu.innerHTML=US.map((x,i)=>`<option value="${i}">${x.t.replace(/</g,'&lt;').slice(0,70)}</option>`).join('');
+  fillLessons();
+}
+qu.onchange=fillLessons;ql.onchange=setRange;
 qb.onchange=lessons;qg.onchange=async()=>{await loadLib();lessons()};
 $('#qauto').onclick=async()=>{qs=null;await $('#qgo').onclick();if(qs){window.__bookQs={type:'safi-questions',label,questions:qs};window.__openGame('games/all.html#g='+$('#qgm').value,'ألعاب من الكتب',window.__bookQs)}};
 try{await loadLib();lessons()}catch(e){$('#qs').hidden=true;return}
 const STOP=new Set('ما هو هي هل كيف لماذا من في علي عن الي الذي التي هذا هذه الدرس الوحده الوحدة درس وحده'.split(' '));
 const stem=w=>w.replace(/^(وال|بال|كال|لل|ال)/,'');
 function pick(pages,topic,from,to,max){
-  if(from||to){const a=Math.max(1,from||1),b=Math.min(pages.length,to||a+max-1);const r=[];for(let p=a;p<=b&&r.length<max;p++)r.push(p);return r}
+  if(from||to){const a=Math.max(1,from||1),b=Math.min(pages.length,to||a+max-1);const r=[];if(b-a+1<=max){for(let p=a;p<=b;p++)r.push(p);return r}for(let i=0;i<max;i++)r.push(Math.round(a+i*(b-a)/(max-1)));return[...new Set(r)]}
   const ws=[...new Set(norm(topic).replace(/[^؀-ۿa-z0-9\s]/g,' ').split(/\s+/).filter(w=>w.length>1&&!STOP.has(w)).map(stem).filter(w=>w.length>1))];
   if(!ws.length)return[];
   const sc=pages.map((t,i)=>{const n=norm(t||'');let s=0;ws.forEach(w=>{if(n.includes(w))s++});return[s,i+1]}).filter(x=>x[0]>0).sort((a,b)=>b[0]-a[0]||a[1]-b[1]).slice(0,max).map(x=>x[1]).sort((a,b)=>a-b);
