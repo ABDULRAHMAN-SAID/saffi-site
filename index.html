@@ -211,7 +211,7 @@ footer bdi{unicode-bidi:isolate}
 <div dir="rtl" lang="ar">
 <header><div class="w">
   <a class="logo" href="#top">صفّي<i>.</i></a>
-  <nav aria-label="الأقسام"><a href="#try">جرّب</a><a href="#games">الألعاب</a><a href="#plans">الباقات</a><a href="#faq">أسئلة</a></nav>
+  <nav aria-label="الأقسام"><a href="#try">جرّب</a><a href="#library">الكتب</a><a href="#games">الألعاب</a><a href="#plans">الباقات</a><a href="#faq">أسئلة</a></nav>
   <a class="btn dark sm" href="#plans">اشترك</a>
 </div></header>
 
@@ -311,13 +311,13 @@ footer bdi{unicode-bidi:isolate}
 <p class="soon"><a class="btn dark sm" href="games/all.html">افتح قائمة كل الألعاب</a></p>
 </div></section>
 
-<section class="s" id="library" hidden><div class="w">
+<section class="s" id="library"><div class="w">
   <h2>مكتبة الكتب، للبحث والقراءة</h2>
   <p class="lede" style="font-size:18px;font-weight:300;color:var(--muted);max-width:34em;margin-top:14px">كتب الطالب وأدلة المعلم وكتب الأنشطة بنصها المستخرج. اقرأ الصفحة التي تحتاجها، أو ابحث في كل كتب الصف دفعة واحدة. هذه الكتب هي مصدر الألعاب ومصدر نبراس.</p>
   <div class="lib-chips" id="lgrades" role="group" aria-label="الصف"></div>
   <div class="lib-chips" id="ltypes" role="group" aria-label="نوع الكتاب"></div>
   <form class="lib-search" id="lsf"><input id="lq" type="search" placeholder="ابحث في كتب الصف، مثل: التناسب العكسي" aria-label="بحث في كتب الصف"><button class="btn dark sm" type="submit">بحث</button></form>
-  <p class="lib-note">النص مستخرج آليًا من ملفات PDF وقد تظهر فيه أخطاء، خاصة في المعادلات والأشكال والجداول. الصف العاشر جاهز الآن، والصفوف الأخرى تُضاف تباعًا.</p>
+  <p class="lib-note">النص مستخرج آليًا من ملفات PDF وقد تظهر فيه أخطاء، خاصة في المعادلات والأشكال والجداول. كتب الصفوف من الخامس إلى الثاني عشر تُضاف تباعًا؛ الكتب المعلّمة «قيد المعالجة» تظهر هنا فور جاهزيتها.</p>
  <div class="lib-list" id="llist"></div>
   <details class="pdfbox" id="pdfbox"><summary>الكتب الأصلية بصيغة PDF — الصفوف ٦ إلى ١٢</summary>
     <div class="lib-chips" id="pgrades" role="group" aria-label="صف ملفات PDF"></div>
@@ -468,27 +468,39 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!o.hidden)close()})
 </section>
 <script>
 (function(){
-const GR=[['السادس',6],['السابع',7],['الثامن',8],['التاسع',9],['العاشر',10],['الحادي عشر',11],['الثاني عشر',12]];
+const GR=[['الخامس',5],['السادس',6],['السابع',7],['الثامن',8],['التاسع',9],['العاشر',10],['الحادي عشر',11],['الثاني عشر',12],['الأول',1],['الثاني',2],['الثالث',3],['الرابع',4]];
 const AV={10:true};
 const TY={all:'الكل',student:'كتاب الطالب',teacher:'دليل المعلم',activity:'كتاب النشاط',summary:'ملخصات'};
 const TL={student:'كتاب الطالب',teacher:'دليل المعلم',activity:'كتاب النشاط',summary:'ملخص',resource:'مصدر'};
 const q=s=>document.querySelector(s);
-const st={g:10,t:'all',libs:{},books:{},texts:{},cur:null};
+const st={g:12,t:'all',libs:{},books:{},texts:{},cur:null};
 const get=u=>fetch(u).then(r=>{if(!r.ok)throw 0;return r.json()});
 const norm=t=>t.replace(/[ً-ْـ]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').toLowerCase();
 const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
 function chips(){
-  q('#lgrades').innerHTML=GR.map(([n,g])=>`<button class="lchip" data-g="${g}" aria-pressed="${g===st.g}" ${AV[g]?'':'disabled'}>${n}${AV[g]?'':'<small>قريبًا</small>'}</button>`).join('');
+  q('#lgrades').innerHTML=GR.map(([n,g])=>`<button class="lchip" data-g="${g}" aria-pressed="${g===st.g}">${n}</button>`).join('');
   q('#ltypes').innerHTML=Object.entries(TY).map(([k,v])=>`<button class="lchip" data-t="${k}" aria-pressed="${k===st.t}">${v}</button>`).join('');
 }
+const KT={'كتاب الطالب':'student','دليل المعلم':'teacher','كتاب النشاط':'activity','ملخص':'summary'};
+let CATL=null;
+async function lib(g){ if(!st.libs[g]){ try{ st.libs[g]=await get(`data/g${g}/library.json`) }catch(e){ st.libs[g]=[] } } return st.libs[g] }
 async function list(){
   const out=q('#llist'); out.innerHTML='<div class="lib-empty">جارٍ تحميل القائمة…</div>';
-  try{ if(!st.libs[st.g]) st.libs[st.g]=await get(`data/g${st.g}/library.json`) }catch(e){ out.innerHTML='<div class="lib-empty">تعذّر تحميل قائمة هذا الصف.</div>'; return }
-  const L=st.libs[st.g].filter(m=>st.t==='all'||m.type===st.t);
-  if(!L.length){out.innerHTML='<div class="lib-empty">لا توجد كتب من هذا النوع في الصف.</div>';return}
-  const by={}; L.forEach(m=>(by[m.subject]=by[m.subject]||[]).push(m));
+  const have=await lib(st.g);
+  if(!CATL){ try{ CATL=await get('data/books_catalog.json') }catch(e){ CATL=[] } }
+  const gn=GR.find(x=>x[1]===st.g)[0];
+  const L=have.filter(m=>st.t==='all'||m.type===st.t);
+  const CG=CATL.filter(e=>e.grade===gn),sj=m=>(CG.find(e=>e.file===m.file)||{}).subject||m.subject;
+  const seen=new Set(have.map(m=>m.file));
+  const P=CATL.filter(e=>e.grade===gn&&!seen.has(e.file)&&(st.t==='all'||(KT[e.kind]||'resource')===st.t));
+  if(!L.length&&!P.length){out.innerHTML='<div class="lib-empty">لا توجد كتب من هذا النوع في الصف.</div>';return}
+  const by={}; L.forEach(m=>((by[sj(m)]=by[sj(m)]||{h:[],p:[]}).h.push(m)));
+  P.forEach(e=>((by[e.subject]=by[e.subject]||{h:[],p:[]}).p.push(e)));
   const ord={student:0,teacher:1,activity:2,summary:3,resource:4};
-  out.innerHTML=Object.keys(by).sort((a,b)=>a.localeCompare(b,'ar')).map(s=>`<div class="lsubj"><h3>${s}<span>${by[s].length} ${by[s].length>2?'كتب':'كتاب'}</span></h3>${by[s].sort((a,b)=>ord[a.type]-ord[b.type]).map(m=>`<button class="lbook" data-k="${m.k}"><span class="lbadge ${m.type}">${TL[m.type]}</span><span class="lbt">${esc(m.file.replace(/\.pdf$/i,''))}<i>${m.ocr>0?'نص معالج بالتعرف الضوئي':'نص من ملف PDF'}</i></span><span class="lpg">${m.n} صفحة</span></button>`).join('')}</div>`).join('');
+  out.innerHTML=`<p class="lpg" style="margin-top:14px">${have.length} كتاب جاهز للقراءة والبحث${P.length?'، و'+P.length+' قيد المعالجة (تظهر تباعًا)':''}</p>`+Object.keys(by).sort((a,b)=>a.localeCompare(b,'ar')).map(sj=>{const o=by[sj],n=o.h.length+o.p.length;
+    return `<div class="lsubj"><h3>${sj}<span>${n} ${n>2?'كتب':'كتاب'}</span></h3>`+
+    o.h.sort((a,b)=>ord[a.type]-ord[b.type]).map(m=>`<button class="lbook" data-k="${m.k}"><span class="lbadge ${m.type}">${TL[m.type]}</span><span class="lbt">${esc(m.file.replace(/\.pdf$/i,''))}<i>${m.ocr>0?'نص معالج بالتعرف الضوئي':'نص من ملف PDF'}</i></span><span class="lpg">${m.n} صفحة</span></button>`).join('')+
+    o.p.map(e=>`<div class="lbook" style="opacity:.55;cursor:default"><span class="lbadge ${KT[e.kind]||'resource'}">${e.kind}</span><span class="lbt">${esc(e.file.replace(/\.pdf$/i,''))}<i>قيد المعالجة</i></span><span class="lpg">قريبًا</span></div>`).join('')+`</div>`}).join('');
 }
 const book=async k=>st.books[k]||(st.books[k]=await get(`data/g${st.g}/${k}.json`));
 async function open(k,p){
