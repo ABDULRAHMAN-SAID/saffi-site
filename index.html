@@ -377,8 +377,8 @@ const TL={student:'كتاب الطالب',teacher:'دليل المعلم',activi
 const qg=$('#qg'),qsu=$('#qsu'),qb=$('#qb'),st=$('#qst'),list=$('#qlist');
 qg.innerHTML=Object.entries(READY).map(([g,n])=>`<option value="${g}">الصف ${n}</option>`).join('');
 let lib=[],books={};
-async function loadLib(){lib=await (await fetch(`data/g${qg.value}/library.json`)).json();const subs=[...new Set(lib.map(m=>m.subject))].sort((a,b)=>a.localeCompare(b,'ar'));qsu.innerHTML=subs.map(s=>`<option>${s}</option>`).join('');fillBooks()}
-function fillBooks(){const ord={student:0,activity:1,teacher:2,summary:3,resource:4};const seen=new Set();const L=lib.filter(m=>m.subject===qsu.value).sort((a,b)=>(ord[a.type]??9)-(ord[b.type]??9)||b.n-a.n).filter(m=>{const k=m.type+'|'+m.n;if(seen.has(k))return false;seen.add(k);return true});const c={};qb.innerHTML=L.map(m=>{c[m.type]=(c[m.type]||0)+1;const tot=L.filter(x=>x.type===m.type).length;return `<option value="${m.k}">${TL[m.type]||m.type}${tot>1?' '+c[m.type]:''} — ${m.n} صفحة</option>`}).join('')}
+async function loadLib(){lib=await (await fetch(`data/g${qg.value}/library.json`)).json();const subs=[...new Set(lib.filter(m=>!m.bad).map(m=>m.subject))].sort((a,b)=>a.localeCompare(b,'ar'));qsu.innerHTML=subs.map(s=>`<option>${s}</option>`).join('');fillBooks()}
+function fillBooks(){const ord={student:0,activity:1,teacher:2,summary:3,resource:4};const seen=new Set();const L=lib.filter(m=>m.subject===qsu.value&&!m.bad).sort((a,b)=>(ord[a.type]??9)-(ord[b.type]??9)||b.n-a.n).filter(m=>{const k=m.type+'|'+m.n;if(seen.has(k))return false;seen.add(k);return true});const c={};qb.innerHTML=L.map(m=>{c[m.type]=(c[m.type]||0)+1;const tot=L.filter(x=>x.type===m.type).length;return `<option value="${m.k}">${TL[m.type]||m.type}${tot>1?' '+c[m.type]:''} — ${m.n} صفحة</option>`}).join('')}
 qsu.onchange=()=>{fillBooks();lessons()};
 const ql=$('#ql'),qu=$('#qu');let LS=[],US=[];
 const chunks=(p,e,sz)=>{const r=[];for(let x=p;x<=e;x+=sz)r.push({t:`الصفحات ${x}–${Math.min(x+sz-1,e)}`,p:x,e:Math.min(x+sz-1,e)});return r};
