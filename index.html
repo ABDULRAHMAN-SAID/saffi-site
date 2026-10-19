@@ -377,7 +377,7 @@ const qg=$('#qg'),qsu=$('#qsu'),qb=$('#qb'),st=$('#qst'),list=$('#qlist');
 qg.innerHTML=Object.entries(READY).map(([g,n])=>`<option value="${g}">الصف ${n}</option>`).join('');
 let lib=[],books={};
 async function loadLib(){lib=await (await fetch(`data/g${qg.value}/library.json`)).json();const subs=[...new Set(lib.map(m=>m.subject))].sort((a,b)=>a.localeCompare(b,'ar'));qsu.innerHTML=subs.map(s=>`<option>${s}</option>`).join('');fillBooks()}
-function fillBooks(){const ord={student:0,activity:1,teacher:2,summary:3,resource:4};const L=lib.filter(m=>m.subject===qsu.value).sort((a,b)=>(ord[a.type]??9)-(ord[b.type]??9));qb.innerHTML=L.map(m=>`<option value="${m.k}">${TL[m.type]||m.type} — ${m.file.replace(/\.pdf$/i,'').slice(0,40)}</option>`).join('')}
+function fillBooks(){const ord={student:0,activity:1,teacher:2,summary:3,resource:4};const seen=new Set();const L=lib.filter(m=>m.subject===qsu.value).sort((a,b)=>(ord[a.type]??9)-(ord[b.type]??9)||b.n-a.n).filter(m=>{const k=m.type+'|'+m.n;if(seen.has(k))return false;seen.add(k);return true});const c={};qb.innerHTML=L.map(m=>{c[m.type]=(c[m.type]||0)+1;const tot=L.filter(x=>x.type===m.type).length;return `<option value="${m.k}">${TL[m.type]||m.type}${tot>1?' '+c[m.type]:''} — ${m.n} صفحة</option>`}).join('')}
 qsu.onchange=()=>{fillBooks();lessons()};
 const ql=$('#ql');let LS=[];
 async function lessons(){
@@ -385,9 +385,9 @@ async function lessons(){
   try{if(!books[qb.value])books[qb.value]=(await (await fetch(`data/g${qg.value}/${qb.value}.json`)).json()).pages}catch(e){return}
   const P=books[qb.value],seen=new Set();
   P.forEach((t,i)=>{if(i<3)return;const ln=(t||'').split('\n').map(x=>x.trim()).filter(Boolean).slice(0,6);
-    for(const l of ln){const m=l.match(/^(الدرس|الوحدة|الفصل)\s+\S+.{3,70}$/);if(m){const k=norm(l).replace(/\s+/g,' ');if(seen.has(k))break;seen.add(k);LS.push({t:l.replace(/\s+/g,' '),p:i+1});break}}});
+    for(const l of ln){const m=!/الدراسي/.test(l)&&l.match(/^(الدرس|الوحدة|Unit|Lesson|Chapter)\s*\S+.{2,70}$/i);if(m){const k=norm(l).replace(/\s+/g,' ');if(seen.has(k))break;seen.add(k);LS.push({t:l.replace(/\s+/g,' '),p:i+1});break}}});
   ql.innerHTML+=LS.map((x,i)=>`<option value="${i}">${x.t.slice(0,60)} (ص ${x.p})</option>`).join('');
-  if(!LS.length)ql.innerHTML='<option value="">لا فهرس واضح — اكتب اسم الدرس أو الصفحات</option>';
+  if(LS.length<3){LS=[];for(let p=1;p<=P.length;p+=8)LS.push({t:`الصفحات ${p}–${Math.min(p+7,P.length)}`,p});ql.innerHTML='<option value="">— اختر الجزء —</option>'+LS.map((x,i)=>`<option value="${i}">${x.t}</option>`).join('')}
 }
 ql.onchange=()=>{const x=LS[+ql.value];if(!x){return}const nx=LS.find(y=>y.p>x.p);$('#qf').value=x.p;$('#qe').value=Math.min(nx?nx.p-1:x.p+5,x.p+7);$('#qt').value=''};
 qb.onchange=lessons;qg.onchange=async()=>{await loadLib();lessons()};
